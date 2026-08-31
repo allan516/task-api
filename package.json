@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "pnpm exec tsx src/server.ts"
+    "dev": "pnpm exec tsx watch src/server.ts",
+    "build": "pnpm exec tsc",
+    "start": "node dist/server.js"
   },
   "keywords": [],
   "author": "",
@@ -24,7 +25,8 @@
     "@prisma/client": "^7.10.0",
     "dotenv": "^17.4.2",
     "fastify": "^5.12.1",
-    "pg": "^8.23.0"
+    "pg": "^8.23.0",
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@types/node": "^26.4.0",

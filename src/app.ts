@@ -1,18 +1,18 @@
 import Fastify from 'fastify';
-import { prisma } from './database/prisma.js';
+
 import { tasksRoutes } from './modules/tasks/tasks.routes.js';
+import { errorHandler } from './errors/error-handler.js';
 
 export const app = Fastify({
   logger: true,
+
+  ajv: {
+    customOptions: {
+      coerceTypes: false,
+    },
+  },
 });
 
-app.get('/health', async () => {
-  await prisma.$queryRaw`SELECT 1`;
-
-  return {
-    status: 'ok',
-    database: 'connected',
-  };
-});
+app.setErrorHandler(errorHandler);
 
 app.register(tasksRoutes);
