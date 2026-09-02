@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const createTaskSchema = z.object({
-  title: z.string().min(1),
+  title: z.string().min(2),
 });
 
 export const taskParamsSchema = z.object({
@@ -10,7 +10,7 @@ export const taskParamsSchema = z.object({
 
 export const updateTaskSchema = z
   .object({
-    title: z.string().min(1).optional(),
+    title: z.string().min(2).optional(),
     completed: z.boolean().optional(),
   })
   .refine((data) => data.title !== undefined || data.completed !== undefined, {
