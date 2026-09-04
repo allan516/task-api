@@ -8,14 +8,12 @@ import {
   deleteTaskController,
 } from './tasks.controller.js';
 
+import { authenticate } from '../../security/authenticate.js';
+
 export async function tasksRoutes(app: FastifyInstance) {
-  app.post('/tasks', createTaskController);
-
-  app.get('/tasks', findAllTasksController);
-
-  app.get('/tasks/:id', findTaskByIdController);
-
-  app.patch('/tasks/:id', updateTaskController);
-
-  app.delete('/tasks/:id', deleteTaskController);
+  app.post('/tasks', { preHandler: authenticate }, createTaskController);
+  app.get('/tasks', { preHandler: authenticate }, findAllTasksController);
+  app.get('/tasks/:id', { preHandler: authenticate }, findTaskByIdController);
+  app.patch('/tasks/:id', { preHandler: authenticate }, updateTaskController);
+  app.delete('/tasks/:id', { preHandler: authenticate }, deleteTaskController);
 }

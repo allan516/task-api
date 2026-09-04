@@ -2,7 +2,13 @@ import { prisma } from '../../database/prisma.js';
 
 import { hashPassword, comparePassword } from '../../security/password.js';
 
+import { signToken } from '../../security/jwt.js';
+
 import { createInvalidCredentialsError } from '../../errors/invalid-credentials-error.js';
+import {
+  generateRefreshToken,
+  hashRefreshToken,
+} from '../../security/refresh-token.js';
 
 export async function registerUser(data: {
   name: string;
@@ -17,6 +23,7 @@ export async function registerUser(data: {
       email: data.email,
       passwordHash,
     },
+
     select: {
       id: true,
       name: true,
@@ -50,12 +57,67 @@ export async function loginUser(data: { email: string; password: string }) {
     throw createInvalidCredentialsError();
   }
 
+  const token = signToken(user.id);
+
+  const refreshToken = generateRefreshToken();
+  const refreshTokenHash = hashRefreshToken(refreshToken);
+
+  await prisma.refreshToken.create({
+    data: {
+      tokenHash: refreshTokenHash,
+      userId: user.id,
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    },
+  });
+
   return {
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    emailVerified: user.emailVerified,
-    createdAt: user.createdAt,
-    updatedAt: user.updatedAt,
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      emailVerified: user.emailVerified,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    },
+    token,
+    refreshToken,
   };
+}
+
+export async function refreshAccessToken(refreshToken: string) {
+  const refreshTokenHash = hashRefreshToken(refreshToken);
+
+  const storedToken = await prisma.refreshToken.findUnique({
+    where: {
+      tokenHash: refreshTokenHash,
+    },
+  });
+
+  if (!storedToken) {
+    throw createInvalidCredentialsError();
+  }
+
+  if (storedToken.revokedAt) {
+    throw createInvalidCredentialsError();
+  }
+
+  if (storedToken.expiresAt <= new Date()) {
+    throw createInvalidCredentialsError();
+  }
+
+  return signToken(storedToken.userId);
+}
+
+export async function revokeRefreshToken(refreshToken: string) {
+  const refreshTokenHash = hashRefreshToken(refreshToken);
+
+  await prisma.refreshToken.updateMany({
+    where: {
+      tokenHash: refreshTokenHash,
+      revokedAt: null,
+    },
+    data: {
+      revokedAt: new Date(),
+    },
+  });
 }

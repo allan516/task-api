@@ -1,18 +1,15 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
-import { createUserSchema, type CreateUserInput } from './user.schema.js';
+import { getAuthenticatedUserId } from '../../security/authenticate.js';
+import { findUserById } from './user.service.js';
 
-import { createUser } from './user.service.js';
-
-export async function createUserController(
-  request: FastifyRequest<{
-    Body: CreateUserInput;
-  }>,
+export async function getMeController(
+  request: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const body = createUserSchema.parse(request.body);
+  const userId = getAuthenticatedUserId(request);
 
-  const user = await createUser(body);
+  const user = await findUserById(userId);
 
-  return reply.status(201).send(user);
+  return reply.status(200).send(user);
 }

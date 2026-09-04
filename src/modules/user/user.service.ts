@@ -1,18 +1,9 @@
 import { prisma } from '../../database/prisma.js';
-import { hashPassword } from '../../security/password.js';
 
-export async function createUser(data: {
-  name: string;
-  email: string;
-  password: string;
-}) {
-  const passwordHash = await hashPassword(data.password);
-
-  const user = await prisma.user.create({
-    data: {
-      name: data.name,
-      email: data.email,
-      passwordHash,
+export async function findUserById(userId: number) {
+  return prisma.user.findUnique({
+    where: {
+      id: userId,
     },
     select: {
       id: true,
@@ -23,6 +14,4 @@ export async function createUser(data: {
       updatedAt: true,
     },
   });
-
-  return user;
 }

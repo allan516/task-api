@@ -1,8 +1,8 @@
 import Fastify from 'fastify';
+import cookie from '@fastify/cookie';
 
 import { tasksRoutes } from './modules/tasks/tasks.routes.js';
 import { authRoutes } from './modules/auth/auth.routes.js';
-
 import { errorHandler } from './errors/error-handler.js';
 import { userRoutes } from './modules/user/user.routes.js';
 
@@ -18,5 +18,10 @@ export const app = Fastify({
 
 app.setErrorHandler(errorHandler);
 
+app.register(cookie);
+
 app.register(tasksRoutes);
+
+app.register(userRoutes);
+
 app.register(authRoutes);
