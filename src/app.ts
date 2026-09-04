@@ -1,7 +1,10 @@
 import Fastify from 'fastify';
 
 import { tasksRoutes } from './modules/tasks/tasks.routes.js';
+import { authRoutes } from './modules/auth/auth.routes.js';
+
 import { errorHandler } from './errors/error-handler.js';
+import { userRoutes } from './modules/user/user.routes.js';
 
 export const app = Fastify({
   logger: true,
@@ -16,3 +19,4 @@ export const app = Fastify({
 app.setErrorHandler(errorHandler);
 
 app.register(tasksRoutes);
+app.register(authRoutes);

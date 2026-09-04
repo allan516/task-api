@@ -20,7 +20,7 @@ export async function createTaskController(
 ) {
   const body = createTaskSchema.parse(request.body);
 
-  const task = await createTask(body.title);
+  const task = await createTask(1, body.title);
 
   return reply.status(201).send(task);
 }
@@ -29,7 +29,7 @@ export async function findAllTasksController(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const tasks = await findAllTasks();
+  const tasks = await findAllTasks(1);
 
   return reply.status(200).send(tasks);
 }
@@ -40,7 +40,7 @@ export async function findTaskByIdController(
 ) {
   const { id } = taskParamsSchema.parse(request.params);
 
-  const task = await findTaskById(id);
+  const task = await findTaskById(1, id);
 
   return reply.status(200).send(task);
 }
@@ -53,7 +53,7 @@ export async function updateTaskController(
 
   const { title, completed } = updateTaskSchema.parse(request.body);
 
-  const task = await updateTask(id, {
+  const task = await updateTask(1, id, {
     title,
     completed,
   });
@@ -67,7 +67,7 @@ export async function deleteTaskController(
 ) {
   const { id } = taskParamsSchema.parse(request.params);
 
-  await deleteTask(id);
+  await deleteTask(1, id);
 
   return reply.status(204).send();
 }

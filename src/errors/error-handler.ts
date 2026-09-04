@@ -43,6 +43,13 @@ export function errorHandler(
         message: error.message,
       });
     }
+
+    if (error.code === 'INVALID_CREDENTIALS') {
+      return reply.status(401).send({
+        code: error.code,
+        message: error.message,
+      });
+    }
   }
 
   // Fallback
