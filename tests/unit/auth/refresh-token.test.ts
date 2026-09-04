@@ -2,13 +2,10 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 import { prisma } from '../../../src/database/prisma.js';
 
-import {
-  refreshAccessToken,
-  revokeRefreshToken,
-} from '../../../src/modules/auth/auth.service.js';
+import { refreshAccessToken } from '../../../src/modules/auth/service/refreshAccessToken.js';
 
 import { hashRefreshToken } from '../../../src/security/refresh-token.js';
-
+import { revokeRefreshToken } from '../../../src/modules/auth/service/revokeRefreshToken.js';
 import { signToken } from '../../../src/security/jwt.js';
 
 jest.mock('../../../src/database/prisma.js', () => ({
@@ -62,7 +59,9 @@ describe('refresh token service', () => {
   it('should reject a refresh token that does not exist', async () => {
     (hashRefreshToken as jest.Mock).mockReturnValue('unknown-hash');
 
-    (prisma.refreshToken.findUnique as jest.Mock).mockResolvedValue(null as never);
+    (prisma.refreshToken.findUnique as jest.Mock).mockResolvedValue(
+      null as never,
+    );
 
     await expect(refreshAccessToken('unknown-token')).rejects.toMatchObject({
       type: 'AppError',

@@ -1,12 +1,9 @@
 import type { FastifyInstance } from 'fastify';
 
 import { authenticate } from '../../security/authenticate.js';
-
-import {
-  deleteMeController,
-  getMeController,
-  updateMeController,
-} from './user.controller.js';
+import { deleteMeController } from './controller/deleteMeController.js';
+import { getMeController } from './controller/getMeController.js';
+import { updateMeController } from './controller/updateMeController.js';
 
 export async function userRoutes(app: FastifyInstance) {
   app.get('/users/me', { preHandler: authenticate }, getMeController);

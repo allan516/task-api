@@ -1,11 +1,8 @@
 import type { FastifyInstance } from 'fastify';
-
-import {
-  registerController,
-  loginController,
-  logoutController,
-  refreshController,
-} from './auth.controller.js';
+import { loginController } from './controller/loginController.js';
+import { logoutController } from './controller/logoutController.js';
+import { refreshController } from './controller/refreshController.js';
+import { registerController } from './controller/registerController.js';
 
 export async function authRoutes(app: FastifyInstance) {
   app.post('/auth/register', registerController);

@@ -1,24 +1,6 @@
-import { prisma } from '../../database/prisma.js';
-
-import { comparePassword, hashPassword } from '../../security/password.js';
-
-import type { UpdateMeInput } from './user.schema.js';
-
-export async function findUserById(userId: number) {
-  return prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      emailVerified: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-  });
-}
+import { prisma } from '../../../database/prisma.js';
+import { comparePassword, hashPassword } from '../../../security/password.js';
+import { UpdateMeInput } from '../user.schema.js';
 
 export async function updateMe(userId: number, data: UpdateMeInput) {
   const user = await prisma.user.findUnique({
@@ -62,14 +44,6 @@ export async function updateMe(userId: number, data: UpdateMeInput) {
       emailVerified: true,
       createdAt: true,
       updatedAt: true,
-    },
-  });
-}
-
-export async function deleteUser(userId: number) {
-  await prisma.user.delete({
-    where: {
-      id: userId,
     },
   });
 }

@@ -14,10 +14,8 @@ import {
   hashRefreshToken,
 } from '../../../src/security/refresh-token.js';
 
-import {
-  registerUser,
-  loginUser,
-} from '../../../src/modules/auth/auth.service.js';
+import { loginUser } from '../../../src/modules/auth/service/loginUser.js';
+import { registerUser } from '../../../src/modules/auth/service/registerUser.js';
 
 jest.mock('../../../src/database/prisma.js', () => ({
   prisma: {

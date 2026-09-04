@@ -2,13 +2,11 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 import { prisma } from '../../../src/database/prisma.js';
 
-import {
-  createTask,
-  deleteTask,
-  findAllTasks,
-  findTaskById,
-  updateTask,
-} from '../../../src/modules/tasks/tasks.service.js';
+import { createTask } from '../../../src/modules/tasks/service/createTask.js';
+import { findAllTasks } from '../../../src/modules/tasks/service/findAllTasks.js';
+import { findTaskById } from '../../../src/modules/tasks/service/findTaskById.js';
+import { updateTask } from '../../../src/modules/tasks/service/updateTask.js';
+import { deleteTask } from '../../../src/modules/tasks/service/deleteTask.js';
 
 jest.mock('../../../src/database/prisma.js', () => ({
   prisma: {
