@@ -197,7 +197,12 @@ describe('user.service', () => {
           currentPassword: 'wrong-password',
           password: 'new-password',
         }),
-      ).rejects.toThrow('Invalid current password');
+      ).rejects.toEqual({
+        type: 'AppError',
+        code: 'INVALID_CURRENT_PASSWORD',
+        message: 'Invalid current password',
+        statusCode: 401,
+      });
 
       expect(hashPassword).not.toHaveBeenCalled();
       expect(prisma.user.update).not.toHaveBeenCalled();

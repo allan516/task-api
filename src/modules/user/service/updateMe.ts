@@ -1,6 +1,8 @@
 import { prisma } from '../../../database/prisma.js';
+import { createInvalidCurrentPasswordError } from '../../../errors/invalid-current-password-error.js';
 import { comparePassword, hashPassword } from '../../../security/password.js';
-import { UpdateMeInput } from '../user.schema.js';
+
+import type { UpdateMeInput } from '../user.schema.js';
 
 export async function updateMe(userId: number, data: UpdateMeInput) {
   const user = await prisma.user.findUnique({
@@ -22,7 +24,7 @@ export async function updateMe(userId: number, data: UpdateMeInput) {
     );
 
     if (!passwordMatches) {
-      throw new Error('Invalid current password');
+      throw createInvalidCurrentPasswordError();
     }
 
     passwordHash = await hashPassword(data.password);

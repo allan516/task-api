@@ -117,6 +117,7 @@ describe('findTaskById', () => {
       type: 'AppError',
       code: 'TASK_NOT_FOUND',
       message: 'Task not found',
+      statusCode: 404,
     });
   });
 });
@@ -182,6 +183,7 @@ describe('updateTask', () => {
       type: 'AppError',
       code: 'TASK_NOT_FOUND',
       message: 'Task not found',
+      statusCode: 404,
     });
 
     expect(prisma.task.update).not.toHaveBeenCalled();
@@ -228,6 +230,7 @@ describe('deleteTask', () => {
       type: 'AppError',
       code: 'TASK_NOT_FOUND',
       message: 'Task not found',
+      statusCode: 404,
     });
 
     expect(prisma.task.delete).not.toHaveBeenCalled();

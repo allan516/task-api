@@ -21,35 +21,19 @@ export function errorHandler(
     });
   }
 
-  // Erros conhecidos do Prisma
+  // Erros conhecidos do banco de dados
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
-    if (error.code === 'P2025') {
-      return reply.status(404).send({
-        message: 'Resource not found',
-      });
-    }
-
-    if (error.code === 'P2002') {
-      return reply.status(409).send({
-        message: 'Resource already exists',
-      });
-    }
+    return reply.status(500).send({
+      message: 'Database error',
+    });
   }
 
   // Erros conhecidos da aplicação
   if (isAppError(error)) {
-    if (error.code === 'TASK_NOT_FOUND') {
-      return reply.status(404).send({
-        message: error.message,
-      });
-    }
-
-    if (error.code === 'INVALID_CREDENTIALS') {
-      return reply.status(401).send({
-        code: error.code,
-        message: error.message,
-      });
-    }
+    return reply.status(error.statusCode).send({
+      code: error.code,
+      message: error.message,
+    });
   }
 
   // Fallback

@@ -1,6 +1,9 @@
 import { describe, expect, it, jest } from '@jest/globals';
+
 import { errorHandler } from '../../../src/errors/error-handler.js';
+
 import z from 'zod';
+
 import { Prisma } from '../../../src/generated/prisma/client.js';
 
 jest.mock('../../../src/generated/prisma/client.js', () => {
@@ -44,6 +47,8 @@ describe('errorHandler', () => {
 
     errorHandler(error, request as never, reply as never);
 
+    expect(request.log.error).toHaveBeenCalledWith(error);
+
     expect(reply.status).toHaveBeenCalledWith(500);
 
     expect(reply.send).toHaveBeenCalledWith({
@@ -74,6 +79,8 @@ describe('errorHandler', () => {
 
     errorHandler(error, request as never, reply as never);
 
+    expect(request.log.error).toHaveBeenCalledWith(error);
+
     expect(reply.status).toHaveBeenCalledWith(400);
 
     expect(reply.send).toHaveBeenCalledWith({
@@ -82,33 +89,7 @@ describe('errorHandler', () => {
     });
   });
 
-  it('should return 404 for Prisma P2025 errors', () => {
-    const error = new Prisma.PrismaClientKnownRequestError('Record not found', {
-      code: 'P2025',
-      clientVersion: '7.10.0',
-    });
-
-    const request = {
-      log: {
-        error: jest.fn(),
-      },
-    };
-
-    const reply = {
-      status: jest.fn().mockReturnThis(),
-      send: jest.fn().mockReturnThis(),
-    };
-
-    errorHandler(error, request as never, reply as never);
-
-    expect(reply.status).toHaveBeenCalledWith(404);
-
-    expect(reply.send).toHaveBeenCalledWith({
-      message: 'Resource not found',
-    });
-  });
-
-  it('should return 409 for Prisma P2002 errors', () => {
+  it('should return 500 for known Prisma errors', () => {
     const error = new Prisma.PrismaClientKnownRequestError(
       'Unique constraint failed',
       {
@@ -130,10 +111,43 @@ describe('errorHandler', () => {
 
     errorHandler(error, request as never, reply as never);
 
-    expect(reply.status).toHaveBeenCalledWith(409);
+    expect(request.log.error).toHaveBeenCalledWith(error);
+
+    expect(reply.status).toHaveBeenCalledWith(500);
 
     expect(reply.send).toHaveBeenCalledWith({
-      message: 'Resource already exists',
+      message: 'Database error',
+    });
+  });
+
+  it('should return the AppError status and message', () => {
+    const error = {
+      type: 'AppError',
+      code: 'TASK_NOT_FOUND',
+      message: 'Task not found',
+      statusCode: 404,
+    };
+
+    const request = {
+      log: {
+        error: jest.fn(),
+      },
+    };
+
+    const reply = {
+      status: jest.fn().mockReturnThis(),
+      send: jest.fn().mockReturnThis(),
+    };
+
+    errorHandler(error, request as never, reply as never);
+
+    expect(request.log.error).toHaveBeenCalledWith(error);
+
+    expect(reply.status).toHaveBeenCalledWith(404);
+
+    expect(reply.send).toHaveBeenCalledWith({
+      code: 'TASK_NOT_FOUND',
+      message: 'Task not found',
     });
   });
 });
