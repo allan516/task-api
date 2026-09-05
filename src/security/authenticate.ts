@@ -1,5 +1,6 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
+import { prisma } from '../database/prisma.js';
 import { verifyToken } from './jwt.js';
 
 const authenticatedUsers = new WeakMap<FastifyRequest, number>();
@@ -18,8 +19,22 @@ export async function authenticate(
 
   try {
     const payload = verifyToken(token);
-
     const userId = Number(payload.sub);
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        status: true,
+      },
+    });
+
+    if (!user || user.status === 'BLOCKED') {
+      return reply.status(401).send({
+        message: 'Unauthorized',
+      });
+    }
 
     authenticatedUsers.set(request, userId);
   } catch {

@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "pnpm exec tsx watch src/server.ts",
     "build": "pnpm exec tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "db:seed": "pnpm exec tsx prisma/seed.ts"
   },
   "keywords": [],
   "author": "",

@@ -118,7 +118,6 @@ describe('loginUser', () => {
     jest.mocked(prisma.user.findUnique).mockReset();
     jest.mocked(comparePassword).mockReset();
     jest.mocked(signToken).mockReset();
-
     jest.mocked(generateRefreshToken).mockReset();
     jest.mocked(hashRefreshToken).mockReset();
     jest.mocked(prisma.refreshToken.create).mockReset();
@@ -130,6 +129,8 @@ describe('loginUser', () => {
       name: 'Allan',
       email: 'allan@email.com',
       passwordHash: 'hashed-password',
+      role: 'USER' as const,
+      status: 'ACTIVE' as const,
       emailVerified: false,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -141,9 +142,13 @@ describe('loginUser', () => {
 
     jest.mocked(signToken).mockReturnValue('fake-jwt-token');
 
-    jest.mocked(generateRefreshToken).mockReturnValue('fake-refresh-token');
+    jest.mocked(generateRefreshToken).mockReturnValue(
+      'fake-refresh-token',
+    );
 
-    jest.mocked(hashRefreshToken).mockReturnValue('hashed-refresh-token');
+    jest.mocked(hashRefreshToken).mockReturnValue(
+      'hashed-refresh-token',
+    );
 
     jest.mocked(prisma.refreshToken.create).mockResolvedValue({
       id: 1,
@@ -165,13 +170,18 @@ describe('loginUser', () => {
       },
     });
 
-    expect(comparePassword).toHaveBeenCalledWith('12345678', 'hashed-password');
+    expect(comparePassword).toHaveBeenCalledWith(
+      '12345678',
+      'hashed-password',
+    );
 
     expect(signToken).toHaveBeenCalledWith(1);
 
     expect(generateRefreshToken).toHaveBeenCalled();
 
-    expect(hashRefreshToken).toHaveBeenCalledWith('fake-refresh-token');
+    expect(hashRefreshToken).toHaveBeenCalledWith(
+      'fake-refresh-token',
+    );
 
     expect(prisma.refreshToken.create).toHaveBeenCalledWith({
       data: {
@@ -192,7 +202,6 @@ describe('loginUser', () => {
       },
 
       token: 'fake-jwt-token',
-
       refreshToken: 'fake-refresh-token',
     });
   });
@@ -212,7 +221,6 @@ describe('loginUser', () => {
     });
 
     expect(comparePassword).not.toHaveBeenCalled();
-
     expect(signToken).not.toHaveBeenCalled();
   });
 
@@ -222,6 +230,8 @@ describe('loginUser', () => {
       name: 'Allan',
       email: 'allan@email.com',
       passwordHash: 'hashed-password',
+      role: 'USER' as const,
+      status: 'ACTIVE' as const,
       emailVerified: false,
       createdAt: new Date(),
       updatedAt: new Date(),

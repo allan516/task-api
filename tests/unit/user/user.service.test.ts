@@ -84,6 +84,8 @@ describe('user.service', () => {
         name: 'Allan',
         email: 'allan@example.com',
         passwordHash: 'hashed-password',
+        role: 'USER',
+        status: 'ACTIVE',
         emailVerified: false,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -132,13 +134,14 @@ describe('user.service', () => {
         name: 'Allan',
         email: 'allan@example.com',
         passwordHash: 'old-hash',
+        role: 'USER',
+        status: 'ACTIVE',
         emailVerified: false,
         createdAt: new Date(),
         updatedAt: new Date(),
       } as never);
 
       jest.mocked(comparePassword).mockResolvedValue(true);
-
       jest.mocked(hashPassword).mockResolvedValue('new-hash');
 
       jest.mocked(prisma.user.update).mockResolvedValue({
@@ -155,7 +158,10 @@ describe('user.service', () => {
         password: 'new-password',
       });
 
-      expect(comparePassword).toHaveBeenCalledWith('old-password', 'old-hash');
+      expect(comparePassword).toHaveBeenCalledWith(
+        'old-password',
+        'old-hash',
+      );
 
       expect(hashPassword).toHaveBeenCalledWith('new-password');
 
@@ -185,6 +191,8 @@ describe('user.service', () => {
         name: 'Allan',
         email: 'allan@example.com',
         passwordHash: 'old-hash',
+        role: 'USER',
+        status: 'ACTIVE',
         emailVerified: false,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -210,12 +218,19 @@ describe('user.service', () => {
   });
 
   describe('deleteUser', () => {
-    it('should delete a user by id', async () => {
+    it('should delete a USER by id', async () => {
+      jest.mocked(prisma.user.findUnique).mockResolvedValue({
+        id: 1,
+        role: 'USER',
+      } as never);
+
       jest.mocked(prisma.user.delete).mockResolvedValue({
         id: 1,
         name: 'Allan',
         email: 'allan@example.com',
         passwordHash: 'hashed-password',
+        role: 'USER',
+        status: 'ACTIVE',
         emailVerified: false,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -223,11 +238,36 @@ describe('user.service', () => {
 
       await deleteUser(1);
 
+      expect(prisma.user.findUnique).toHaveBeenCalledWith({
+        where: {
+          id: 1,
+        },
+        select: {
+          role: true,
+        },
+      });
+
       expect(prisma.user.delete).toHaveBeenCalledWith({
         where: {
           id: 1,
         },
       });
+    });
+
+    it('should reject when trying to delete an ADMIN', async () => {
+      jest.mocked(prisma.user.findUnique).mockResolvedValue({
+        id: 1,
+        role: 'ADMIN',
+      } as never);
+
+      await expect(deleteUser(1)).rejects.toEqual({
+        type: 'AppError',
+        code: 'CANNOT_DELETE_SELF',
+        message: 'Admin cannot delete their own account',
+        statusCode: 403,
+      });
+
+      expect(prisma.user.delete).not.toHaveBeenCalled();
     });
   });
 });
